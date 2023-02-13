@@ -176,7 +176,7 @@ def enrich_data_with_psi_api():
     client = bigquery.Client()
 
     rows = client.list_rows(table,
-                            start_index=35,
+                            start_index=0,
                             max_results=1000)
     big_query_df = rows.to_dataframe()
     site_url_df = big_query_df['site_url']
