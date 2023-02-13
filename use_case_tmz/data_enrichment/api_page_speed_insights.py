@@ -29,7 +29,7 @@ def page_speed_insight_kpis(site, key):
     if 'error' in data.keys():
         code_error = data['error']['code']
         code_message = data['error']['message']
-        print(Fore.RED + f'Error found in API call {code_error}. Reason mentionned:{code_message}' + Style.RESET_ALL)
+        print(Fore.RED + f'Error found in API call {code_error}. Reason mentionned:{code_message}\n' + Style.RESET_ALL)
         lighthouse_score = NaN
         LCP = NaN
         FID = NaN
@@ -136,11 +136,24 @@ def get_data_from_similar(url):
     'user-agent':r"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"}
     r = requests.get(f'https://data.similarweb.com/api/v1/data?domain={url}', headers=headers)
     result = r.json()
+
+    new_data["site_url"] = [url]
+
     if "status" in result.keys():
-        pass
+        new_data["Social"] = NaN
+        new_data["Paid_Referrals"] = NaN
+        new_data["Mail"] = NaN
+        new_data["Referrals"] = NaN
+        new_data["Search"] = NaN
+        new_data["Direct"] = NaN
+        new_data["BounceRate"] = NaN
+        new_data["PagePerVisit"] = NaN
+        new_data["Category"] = NaN
+        new_data["EstimatedMonthlyVisits"] = NaN
+
     else:
         if result["TrafficSources"] is not None :
-            new_data["site_url"] = [(url)]
+        # new_data["site_url"] = [url]
             new_data["Social"] =[result.get("TrafficSources").get("Social")]
             new_data["Paid_Referrals"] = result.get("TrafficSources").get("Referrals")
             new_data["Mail"] = result.get("TrafficSources").get("Mail")
@@ -164,9 +177,6 @@ def get_data_from_similar(url):
             new_data["EstimatedMonthlyVisits"]=new_data["EstimatedMonthlyVisits"].astype('float64')
 
     return new_data
-
-
-
 
 # Function to enrich the data, take from BigQuery and return to another BigQuery table
 def enrich_data_with_psi_api():
@@ -216,6 +226,9 @@ def enrich_data_with_psi_api():
         print(Fore.YELLOW + f'Data retrieving for site_url {site_url_df.iloc[i]}\n' + Style.RESET_ALL)
         psi_df = page_speed_insight_kpis(site_url_df.iloc[i], keys[l])
         sw_df = get_data_from_similar(site_url_df.iloc[i])
+
+        print(psi_df)
+        print(sw_df)
 
         # Merge both df with new data from both APIs
         sw_psi_df = pd.merge(psi_df, sw_df, on='site_url', how='left')
