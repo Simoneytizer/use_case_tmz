@@ -150,6 +150,7 @@ def get_data_from_similar(url):
         new_data["PagePerVisit"] = NaN
         new_data["Category"] = NaN
         new_data["EstimatedMonthlyVisits"] = NaN
+        new_data["Top_Geo"] = NaN
 
     else:
         if result["TrafficSources"] is not None :
@@ -164,6 +165,7 @@ def get_data_from_similar(url):
             new_data["PagePerVisit"] = result.get("Engagments").get("PagePerVisit")
             new_data["Category"] = result.get("Category","Unknown")
             new_data["EstimatedMonthlyVisits"] = (last_key(result["EstimatedMonthlyVisits"]))
+            new_data["Top_Geo"] = result.get('TopCountryShares')[0]["Country"]
 
             new_data["Social"]= new_data["Social"].astype('float64')
             new_data["Paid_Referrals"]=new_data["Paid_Referrals"].astype('float64')
@@ -174,6 +176,7 @@ def get_data_from_similar(url):
             new_data["BounceRate"]=new_data["BounceRate"].astype('float64')
             new_data["PagePerVisit"]=new_data["PagePerVisit"].astype('float64')
             new_data["Category"]=new_data["Category"].astype('string')
+            new_data["Top_Geo"]= new_data["Top_Geo"].astype('string')
             new_data["EstimatedMonthlyVisits"]=new_data["EstimatedMonthlyVisits"].astype('float64')
 
     return new_data
