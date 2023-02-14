@@ -2,19 +2,22 @@ import requests
 import pandas as pd
 
 from google.cloud import bigquery
-from use_case_tmz.ml_logic.params import PSI_API_KEY, PROJECT, DATASET, TABLE, TABLE_TO
+from use_case_tmz.ml_logic.params import PSI_API_KEY, PROJECT, DATASET, TABLE, TABLE_TO, PSI_API_KEY_1, PSI_API_KEY_2, PSI_API_KEY_3
 
 import json
 from numpy import NaN
+import random
+import time
 
+from colorama import Fore, Style
 
 
 
 # Function to retrieve data from page speed insights API
-def page_speed_insight_kpis(site):
+def page_speed_insight_kpis(site, key):
 
     # API key. To change if out
-    key = f'{PSI_API_KEY}'
+    key = key
 
     # API request
     url_api = f'https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={site}&key={key}'
@@ -22,25 +25,67 @@ def page_speed_insight_kpis(site):
     response = requests.get(url_api)
     data = response.json()
 
-    # Get lighthouse_score available for all request
-    lighthouse_score = data['lighthouseResult']['categories']['performance']['score']
-
-    #Get additional metrics if available
-    if 'metrics' in data['loadingExperience'].keys():
-        LCP = data['loadingExperience']['metrics']['LARGEST_CONTENTFUL_PAINT_MS']['percentile']/1000
-        FID = data['loadingExperience']['metrics']['FIRST_INPUT_DELAY_MS']['percentile']
-        CLS = data['loadingExperience']['metrics']['CUMULATIVE_LAYOUT_SHIFT_SCORE']['percentile']/100
-        FCP = data['loadingExperience']['metrics']['FIRST_CONTENTFUL_PAINT_MS']['percentile']/1000
-        INP = data['loadingExperience']['metrics']['EXPERIMENTAL_INTERACTION_TO_NEXT_PAINT']['percentile']
-        TTFB = data['loadingExperience']['metrics']['EXPERIMENTAL_TIME_TO_FIRST_BYTE']['percentile']/1000
-
-    else:
+    # Handling error when calling API
+    if 'error' in data.keys():
+        code_error = data['error']['code']
+        code_message = data['error']['message']
+        print(Fore.RED + f'Error found in API call {code_error}. Reason mentionned:{code_message}\n' + Style.RESET_ALL)
+        lighthouse_score = NaN
         LCP = NaN
         FID = NaN
         CLS = NaN
         FCP = NaN
         INP = NaN
         TTFB = NaN
+
+    else:
+
+        # Get lighthouse_score available for all request
+        if 'lighthouseResult' in data.keys():
+            lighthouse_score = data['lighthouseResult']['categories']['performance']['score']
+        else:
+            lighthouse_score = NaN
+
+        #Get additional metrics if available
+        if 'metrics' in data['loadingExperience'].keys():
+
+            if 'LARGEST_CONTENTFUL_PAINT_MS' in data['loadingExperience']['metrics'].keys():
+                LCP = data['loadingExperience']['metrics']['LARGEST_CONTENTFUL_PAINT_MS']['percentile']/1000
+            else:
+                LCP = NaN
+
+            if 'FIRST_INPUT_DELAY_MS' in data['loadingExperience']['metrics'].keys():
+                FID = data['loadingExperience']['metrics']['FIRST_INPUT_DELAY_MS']['percentile']
+            else:
+                FID = NaN
+
+            if 'CUMULATIVE_LAYOUT_SHIFT_SCORE' in data['loadingExperience']['metrics'].keys():
+                CLS = data['loadingExperience']['metrics']['CUMULATIVE_LAYOUT_SHIFT_SCORE']['percentile']/100
+            else:
+                CLS = NaN
+
+            if 'FIRST_CONTENTFUL_PAINT_MS' in data['loadingExperience']['metrics'].keys():
+                FCP = data['loadingExperience']['metrics']['FIRST_CONTENTFUL_PAINT_MS']['percentile']/1000
+            else:
+                FCP = NaN
+
+            if 'EXPERIMENTAL_INTERACTION_TO_NEXT_PAINT' in data['loadingExperience']['metrics'].keys():
+                INP = data['loadingExperience']['metrics']['EXPERIMENTAL_INTERACTION_TO_NEXT_PAINT']['percentile']
+            else:
+                INP = NaN
+
+            if 'EXPERIMENTAL_TIME_TO_FIRST_BYTE' in data['loadingExperience']['metrics'].keys():
+                TTFB = data['loadingExperience']['metrics']['EXPERIMENTAL_TIME_TO_FIRST_BYTE']['percentile']/1000
+            else:
+                TTFB = NaN
+
+        else:
+            LCP = NaN
+            FID = NaN
+            CLS = NaN
+            FCP = NaN
+            INP = NaN
+            TTFB = NaN
 
     # KPIs needed stored in a dict to create a DataFrame
     dict_kpis = {
@@ -91,11 +136,24 @@ def get_data_from_similar(url):
     'user-agent':r"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"}
     r = requests.get(f'https://data.similarweb.com/api/v1/data?domain={url}', headers=headers)
     result = r.json()
+
+    new_data["site_url"] = [url]
+
     if "status" in result.keys():
-        pass
+        new_data["Social"] = NaN
+        new_data["Paid_Referrals"] = NaN
+        new_data["Mail"] = NaN
+        new_data["Referrals"] = NaN
+        new_data["Search"] = NaN
+        new_data["Direct"] = NaN
+        new_data["BounceRate"] = NaN
+        new_data["PagePerVisit"] = NaN
+        new_data["Category"] = NaN
+        new_data["EstimatedMonthlyVisits"] = NaN
+
     else:
         if result["TrafficSources"] is not None :
-            new_data["site_url"] = [(url)]
+        # new_data["site_url"] = [url]
             new_data["Social"] =[result.get("TrafficSources").get("Social")]
             new_data["Paid_Referrals"] = result.get("TrafficSources").get("Referrals")
             new_data["Mail"] = result.get("TrafficSources").get("Mail")
@@ -120,9 +178,6 @@ def get_data_from_similar(url):
 
     return new_data
 
-
-
-
 # Function to enrich the data, take from BigQuery and return to another BigQuery table
 def enrich_data_with_psi_api():
 
@@ -131,8 +186,8 @@ def enrich_data_with_psi_api():
     client = bigquery.Client()
 
     rows = client.list_rows(table,
-                            start_index=0,
-                            max_results=10)
+                            start_index=520,
+                            max_results=1000)
     big_query_df = rows.to_dataframe()
     site_url_df = big_query_df['site_url']
 
@@ -163,10 +218,17 @@ def enrich_data_with_psi_api():
                                         ])
 
     # Apply the page speed insight function to get KPIs for all site url
-    for i in range(5):
+    for i in range(1000):
+        l = random.randint(0,3)
+        keys =[PSI_API_KEY, PSI_API_KEY_1, PSI_API_KEY_2, PSI_API_KEY_3]
+        print(Fore.CYAN + f'Selected API key: {keys[l]}\n' + Style.RESET_ALL)
         # Apply function to get data from both APIs
-        psi_df = page_speed_insight_kpis(site_url_df.iloc[i])
+        print(Fore.YELLOW + f'Data retrieving for site_url {site_url_df.iloc[i]}\n' + Style.RESET_ALL)
+        psi_df = page_speed_insight_kpis(site_url_df.iloc[i], keys[l])
         sw_df = get_data_from_similar(site_url_df.iloc[i])
+
+        print(psi_df)
+        print(sw_df)
 
         # Merge both df with new data from both APIs
         sw_psi_df = pd.merge(psi_df, sw_df, on='site_url', how='left')
@@ -174,7 +236,11 @@ def enrich_data_with_psi_api():
         # Send the entire df to BigQuery
         job = client.load_table_from_dataframe(sw_psi_df, table_to_send_to, job_config=job_config)
         result = job.result()
-        print(f"Site_url {i} loaded to BigQuery")
+        print(Fore.GREEN + f"Site_url {i} loaded to BigQuery\n" + Style.RESET_ALL)
+
+        # Waiting time to avoid overloading API
+        print(Fore.BLUE + f'Waiting 30 sec in between for API key\n' + Style.RESET_ALL)
+        time.sleep(30)
 
 if __name__ == '__main__':
     # page_speed_insight_kpis('https://reunionsaveurs.com')
