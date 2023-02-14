@@ -227,9 +227,6 @@ def enrich_data_with_psi_api():
         psi_df = page_speed_insight_kpis(site_url_df.iloc[i], keys[l])
         sw_df = get_data_from_similar(site_url_df.iloc[i])
 
-        print(psi_df)
-        print(sw_df)
-
         # Merge both df with new data from both APIs
         sw_psi_df = pd.merge(psi_df, sw_df, on='site_url', how='left')
 
