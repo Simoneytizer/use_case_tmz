@@ -165,7 +165,6 @@ def get_data_from_similar(url):
             new_data["PagePerVisit"] = result.get("Engagments").get("PagePerVisit")
             new_data["Category"] = result.get("Category","Unknown")
             new_data["EstimatedMonthlyVisits"] = (last_key(result["EstimatedMonthlyVisits"]))
-            new_data["Top_Geo"] = result.get('TopCountryShares')[0]["Country"]
 
             new_data["Social"]= new_data["Social"].astype('float64')
             new_data["Paid_Referrals"]=new_data["Paid_Referrals"].astype('float64')
@@ -176,8 +175,15 @@ def get_data_from_similar(url):
             new_data["BounceRate"]=new_data["BounceRate"].astype('float64')
             new_data["PagePerVisit"]=new_data["PagePerVisit"].astype('float64')
             new_data["Category"]=new_data["Category"].astype('string')
-            new_data["Top_Geo"]= new_data["Top_Geo"].astype('string')
             new_data["EstimatedMonthlyVisits"]=new_data["EstimatedMonthlyVisits"].astype('float64')
+
+            if len(result.get('TopCountryShares')) == 0:
+                new_data["Top_Geo"] = NaN
+            else:
+                new_data["Top_Geo"] = result.get('TopCountryShares')[0]["Country"]
+                new_data["Top_Geo"]= new_data["Top_Geo"].astype('string')
+
+
 
     return new_data
 
@@ -217,7 +223,7 @@ def enrich_data_with_psi_api():
                                             bigquery.SchemaField('PagePerVisit', 'FLOAT'),
                                             bigquery.SchemaField('Category', 'STRING'),
                                             bigquery.SchemaField('EstimatedMonthlyVisits', 'INTEGER'),
-                                            # bigquery.SchemaField('__index_level_0__', 'INTEGER')
+                                            bigquery.SchemaField('Top_Geo', 'STRING')
                                         ])
 
     # Apply the page speed insight function to get KPIs for all site url
