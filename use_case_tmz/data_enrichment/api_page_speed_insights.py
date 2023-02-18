@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 
 from google.cloud import bigquery
-from use_case_tmz.ml_logic.params import PSI_API_KEY, PROJECT, DATASET, TABLE, TABLE_TO, PSI_API_KEY_1, PSI_API_KEY_2, PSI_API_KEY_3
+from use_case_tmz.ml_logic.params import PSI_API_KEY, PROJECT, DATASET, TABLE, TABLE_TO, PSI_API_KEY_1, PSI_API_KEY_2, PSI_API_KEY_3, TABLE_DATA_API
 
 import json
 from numpy import NaN
@@ -10,7 +10,7 @@ import random
 import time
 
 from colorama import Fore, Style
-
+import os
 
 
 # Function to retrieve data from page speed insights API
@@ -150,6 +150,7 @@ def get_data_from_similar(url):
         new_data["PagePerVisit"] = NaN
         new_data["Category"] = NaN
         new_data["EstimatedMonthlyVisits"] = NaN
+        new_data["Top_Geo"] = NaN
 
     else:
         if result["TrafficSources"] is not None :
@@ -176,23 +177,36 @@ def get_data_from_similar(url):
             new_data["Category"]=new_data["Category"].astype('string')
             new_data["EstimatedMonthlyVisits"]=new_data["EstimatedMonthlyVisits"].astype('float64')
 
+            if len(result.get('TopCountryShares')) == 0:
+                new_data["Top_Geo"] = NaN
+            else:
+                new_data["Top_Geo"] = result.get('TopCountryShares')[0]["Country"]
+                new_data["Top_Geo"]= new_data["Top_Geo"].astype('float64')
+
     return new_data
 
 # Function to enrich the data, take from BigQuery and return to another BigQuery table
 def enrich_data_with_psi_api():
 
-    # Get BigQuery Data
-    table =f"{PROJECT}.{DATASET}.{TABLE}"
+    # # Get BigQuery Data
+    # table =f"{PROJECT}.{DATASET}.{TABLE}"
     client = bigquery.Client()
 
-    rows = client.list_rows(table,
-                            start_index=520,
-                            max_results=1000)
-    big_query_df = rows.to_dataframe()
-    site_url_df = big_query_df['site_url']
+    # rows = client.list_rows(table,
+    #                         start_index=520,
+    #                         max_results=1000)
+    # big_query_df = rows.to_dataframe()
+    # site_url_df = big_query_df['site_url']
+
+    # Get data from latest rest csv
+    root = os.path.dirname(os.path.dirname(__file__))
+    path = f'{root}/data/raw_data/rest'
+    df = pd.read_csv(f'{path}/20230218_2249.csv')
+    site_url_df = df['site_url']
+
 
     # Parameters to send to BigQuery
-    table_to_send_to = f"{PROJECT}.{DATASET}.{TABLE_TO}"
+    table_to_send_to = f"{PROJECT}.{DATASET}.{TABLE_DATA_API}"
     write_mode = "WRITE_APPEND"
     job_config = bigquery.LoadJobConfig(write_disposition=write_mode,
                                         schema = [
@@ -214,7 +228,7 @@ def enrich_data_with_psi_api():
                                             bigquery.SchemaField('PagePerVisit', 'FLOAT'),
                                             bigquery.SchemaField('Category', 'STRING'),
                                             bigquery.SchemaField('EstimatedMonthlyVisits', 'INTEGER'),
-                                            # bigquery.SchemaField('__index_level_0__', 'INTEGER')
+                                            bigquery.SchemaField('Top_Geo', 'FLOAT')
                                         ])
 
     # Apply the page speed insight function to get KPIs for all site url
@@ -239,10 +253,10 @@ def enrich_data_with_psi_api():
         print(Fore.GREEN + f"Site_url {i} loaded to BigQuery\n" + Style.RESET_ALL)
 
         # Waiting time to avoid overloading API
-        print(Fore.BLUE + f'Waiting 30 sec in between for API key\n' + Style.RESET_ALL)
-        time.sleep(30)
+        print(Fore.BLUE + f'Waiting 15 sec in between for API key\n' + Style.RESET_ALL)
+        time.sleep(15)
 
 if __name__ == '__main__':
-    # page_speed_insight_kpis('https://reunionsaveurs.com')
+    # print(page_speed_insight_kpis('https://www.mailda.de', 'AIzaSyAQ05zwfa9N0K1765dI3ylDrZE6XTNjz7k'))
     enrich_data_with_psi_api()
-    # print(get_data_from_similar('https://reunionsaveurs.com'))
+    # print(get_data_from_similar('https://www.mailda.de'))
