@@ -13,6 +13,7 @@ from colorama import Fore, Style
 import os
 
 
+
 # Function to retrieve data from page speed insights API
 def page_speed_insight_kpis(site, key):
 
@@ -257,6 +258,6 @@ def enrich_data_with_psi_api():
         time.sleep(15)
 
 if __name__ == '__main__':
-    # print(page_speed_insight_kpis('https://www.mailda.de', 'AIzaSyAQ05zwfa9N0K1765dI3ylDrZE6XTNjz7k'))
+    # print(page_speed_insight_kpis('https://www.mailda.de', PSI_API_KEY))
     enrich_data_with_psi_api()
     # print(get_data_from_similar('https://www.mailda.de'))
