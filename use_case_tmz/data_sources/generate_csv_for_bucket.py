@@ -40,7 +40,7 @@ def data_from_csv(file_name, folder_name):
     # Generate nb of necessary files
     e = 0
     index = 0
-    for i in range(0, len(df), math.ceil(len(df)/100)):
+    for i in range(0, len(df), 100):
         df.iloc[e:i].to_csv(f"{path}/{folder_name}/{index}.csv")
         e = i
         print(f'{index} csv done')
@@ -51,4 +51,4 @@ def data_from_csv(file_name, folder_name):
 
 
 if __name__=="__main__":
-    data_from_csv('20230219_1035', '2nd_round')
+    data_from_csv('20230219_1227', '3rd_round')

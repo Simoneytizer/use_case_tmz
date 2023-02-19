@@ -180,7 +180,7 @@ if __name__=="__main__":
     #     rest_through_api()
 
     # save_to_bq(merging_result())
-    # save_to_csv(find_rest(), '20230219_1035')
-    print(len(reketator_result()))
-    # save_to_bq(new_data(merging_result()))
+    # save_to_csv(find_rest(), '20230219_1227')
+    # print(len(reketator_result()))
+    save_to_bq(new_data(merging_result()))
     # new_data(merging_result())
