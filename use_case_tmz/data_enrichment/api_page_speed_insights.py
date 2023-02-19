@@ -187,7 +187,7 @@ def get_data_from_similar(url):
     return new_data
 
 # Function to enrich the data, take from BigQuery and return to another BigQuery table
-def enrich_data_with_psi_api():
+def enrich_data_with_psi_api(start, end, file_name):
 
     # # Get BigQuery Data
     # table =f"{PROJECT}.{DATASET}.{TABLE}"
@@ -202,9 +202,10 @@ def enrich_data_with_psi_api():
     # Get data from latest rest csv
     root = os.path.dirname(os.path.dirname(__file__))
     path = f'{root}/data/raw_data/rest'
-    df = pd.read_csv(f'{path}/20230218_2249.csv')
+    df = pd.read_csv(f'{path}/{file_name}.csv')
     site_url_df = df['site_url']
-
+    site_url_df = site_url_df.iloc[start:end]
+    print(site_url_df)
 
     # Parameters to send to BigQuery
     table_to_send_to = f"{PROJECT}.{DATASET}.{TABLE_DATA_API}"
@@ -259,5 +260,5 @@ def enrich_data_with_psi_api():
 
 if __name__ == '__main__':
     # print(page_speed_insight_kpis('https://www.mailda.de', PSI_API_KEY))
-    enrich_data_with_psi_api()
+    enrich_data_with_psi_api(20, 30, '20230219_1035')
     # print(get_data_from_similar('https://www.mailda.de'))

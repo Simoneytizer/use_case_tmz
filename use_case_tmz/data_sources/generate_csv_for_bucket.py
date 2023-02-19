@@ -51,4 +51,4 @@ def data_from_csv(file_name, folder_name):
 
 
 if __name__=="__main__":
-    data_from_csv('20230218', '1st_round')
+    data_from_csv('20230219_1035', '2nd_round')

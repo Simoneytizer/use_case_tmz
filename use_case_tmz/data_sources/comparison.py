@@ -101,8 +101,6 @@ def find_rest()-> pd.DataFrame:
 def rest_through_api():
     df_rest = find_rest().rename(columns={'site_url': 'url'})
 
-
-
     # Loop over same as before to split into 100 lines csv and send to bucket
     print(len(df_rest))
     e = 0
@@ -130,7 +128,7 @@ def new_data(df):
     df_new_data = df[filter_new_data]
 
     nb_url_new_data = df_new_data['site_url'].shape[0]
-    print(f'{nb_url_new_data} done')
+    print(f'{nb_url_new_data} new urls done')
 
     return df_new_data
 
@@ -182,6 +180,7 @@ if __name__=="__main__":
     #     rest_through_api()
 
     # save_to_bq(merging_result())
-    save_to_csv(find_rest())
+    save_to_csv(find_rest(), '20230219_1035')
     # print(len(reketator_result()))
     # save_to_bq(new_data(merging_result()))
+    # new_data(merging_result())
