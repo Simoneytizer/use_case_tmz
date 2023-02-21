@@ -184,6 +184,9 @@ def get_data_from_similar(url):
                 new_data["Top_Geo"] = result.get('TopCountryShares')[0]["Country"]
                 new_data["Top_Geo"]= new_data["Top_Geo"].astype('float64')
 
+
+
+
     return new_data
 
 # Function to enrich the data, take from BigQuery and return to another BigQuery table
@@ -231,6 +234,7 @@ def enrich_data_with_psi_api(start, end, file_name):
                                             bigquery.SchemaField('Category', 'STRING'),
                                             bigquery.SchemaField('EstimatedMonthlyVisits', 'INTEGER'),
                                             bigquery.SchemaField('Top_Geo', 'FLOAT')
+
                                         ])
 
     # Apply the page speed insight function to get KPIs for all site url
@@ -242,9 +246,6 @@ def enrich_data_with_psi_api(start, end, file_name):
         print(Fore.YELLOW + f'Data retrieving for site_url {site_url_df.iloc[i]}\n' + Style.RESET_ALL)
         psi_df = page_speed_insight_kpis(site_url_df.iloc[i], keys[l])
         sw_df = get_data_from_similar(site_url_df.iloc[i])
-
-        print(psi_df)
-        print(sw_df)
 
         # Merge both df with new data from both APIs
         sw_psi_df = pd.merge(psi_df, sw_df, on='site_url', how='left')
