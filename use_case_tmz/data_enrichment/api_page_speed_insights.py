@@ -150,6 +150,7 @@ def get_data_from_similar(url):
         new_data["PagePerVisit"] = NaN
         new_data["Category"] = NaN
         new_data["EstimatedMonthlyVisits"] = NaN
+        new_data["Top_Geo"] = NaN
 
     else:
         if result["TrafficSources"] is not None :
@@ -176,6 +177,14 @@ def get_data_from_similar(url):
             new_data["Category"]=new_data["Category"].astype('string')
             new_data["EstimatedMonthlyVisits"]=new_data["EstimatedMonthlyVisits"].astype('float64')
 
+            if len(result.get('TopCountryShares')) == 0:
+                new_data["Top_Geo"] = NaN
+            else:
+                new_data["Top_Geo"] = result.get('TopCountryShares')[0]["Country"]
+                new_data["Top_Geo"]= new_data["Top_Geo"].astype('string')
+
+
+
     return new_data
 
 # Function to enrich the data, take from BigQuery and return to another BigQuery table
@@ -186,8 +195,8 @@ def enrich_data_with_psi_api():
     client = bigquery.Client()
 
     rows = client.list_rows(table,
-                            start_index=520,
-                            max_results=1000)
+                            start_index=0,
+                            max_results=10000)
     big_query_df = rows.to_dataframe()
     site_url_df = big_query_df['site_url']
 
@@ -214,7 +223,7 @@ def enrich_data_with_psi_api():
                                             bigquery.SchemaField('PagePerVisit', 'FLOAT'),
                                             bigquery.SchemaField('Category', 'STRING'),
                                             bigquery.SchemaField('EstimatedMonthlyVisits', 'INTEGER'),
-                                            # bigquery.SchemaField('__index_level_0__', 'INTEGER')
+                                            bigquery.SchemaField('Top_Geo', 'STRING')
                                         ])
 
     # Apply the page speed insight function to get KPIs for all site url
@@ -226,9 +235,6 @@ def enrich_data_with_psi_api():
         print(Fore.YELLOW + f'Data retrieving for site_url {site_url_df.iloc[i]}\n' + Style.RESET_ALL)
         psi_df = page_speed_insight_kpis(site_url_df.iloc[i], keys[l])
         sw_df = get_data_from_similar(site_url_df.iloc[i])
-
-        print(psi_df)
-        print(sw_df)
 
         # Merge both df with new data from both APIs
         sw_psi_df = pd.merge(psi_df, sw_df, on='site_url', how='left')
