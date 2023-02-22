@@ -21,6 +21,8 @@ from colorama import Fore, Style
 from use_case_tmz.data_enrichment.api_page_speed_insights import page_speed_insight_kpis, get_data_from_similar
 from use_case_tmz.ml_logic.params import PSI_API_KEY
 
+
+
 def get_data_from_both_apis(url) -> pd.DataFrame :
 
     print(Fore.YELLOW + f'Retrieving data for site {url}' + Style.RESET_ALL)
@@ -31,17 +33,21 @@ def get_data_from_both_apis(url) -> pd.DataFrame :
     print(Fore.GREEN + f'Data from APIs available for site {url}' + Style.RESET_ALL)
     both_apis_data = pd.merge(psi_kpis, sw_kpis, on='site_url', how='left')
 
-    print(both_apis_data.drop(columns='Top_Geo'))
     return both_apis_data.drop(columns='Top_Geo')
+
+
 
 def blocklist(blocklist_value = 0):
     return blocklist_value
 
-def ads_format_selected(format_1=0, format_2=0, format_3=0, format_4=0, format_5=0,
+
+
+def ads_format_selected(url, format_1=0, format_2=0, format_3=0, format_4=0, format_5=0,
        format_6=0, format_11=0, format_15=0, format_16=0, format_19=0, format_20=0, format_24=0, format_27=0, format_28=0, format_30=0,
        format_31=0, format_34=0, format_38=0, format_39=0, format_43=0, format_44=0, format_46=0):
 
     format_dict = {
+        'site_url':url,
         '_1':format_1,
         '_2':format_2,
         '_3':format_3,
@@ -66,19 +72,33 @@ def ads_format_selected(format_1=0, format_2=0, format_3=0, format_4=0, format_5
         '_46':format_46
     }
 
-    print(pd.DataFrame(format_dict, index=[0]))
+    return pd.DataFrame(format_dict, index=[0])
+
+
 
 
 def top_geo(geo=np.NaN):
     return geo
 
 
-def all_data_for_one_site(url, blocklist_value, geo):
+
+
+def all_data_for_one_site(url, blocklist_value, geo, format_1=0, format_2=0, format_3=0, format_4=0, format_5=0,
+       format_6=0, format_11=0, format_15=0, format_16=0, format_19=0, format_20=0, format_24=0, format_27=0, format_28=0, format_30=0,
+       format_31=0, format_34=0, format_38=0, format_39=0, format_43=0, format_44=0, format_46=0):
+
     df = get_data_from_both_apis(url)
+
     df['blocklist_value'] = blocklist(blocklist_value)
+
     df['geo'] = top_geo(geo)
 
-    print(df)
+    df_format = ads_format_selected(url, format_1, format_2, format_3, format_4, format_5,
+       format_6, format_11, format_15, format_16, format_19, format_20, format_24, format_27, format_28, format_30,
+       format_31, format_34, format_38, format_39, format_43, format_44, format_46)
+
+    df = pd.merge(df, df_format, on='site_url', how='left')
+
     return df
 
 
@@ -86,5 +106,5 @@ def all_data_for_one_site(url, blocklist_value, geo):
 
 if __name__ == '__main__':
     # get_data_from_both_apis('https://dailyloannews.com')
-    # ads_format_selected(format_44=1, format_11=1)
-    all_data_for_one_site('https://dailyloannews.com', 1, 'US')
+    # ads_format_selected('https://dailyloannews.com', format_44=1, format_11=1)
+    print(all_data_for_one_site('https://dailyloannews.com', 1, 'US', format_19=1, format_46=1))
