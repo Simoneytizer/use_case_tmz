@@ -109,4 +109,4 @@ def all_data_for_one_site(url, blocklist_value, geo, format_1=0, format_2=0, for
 if __name__ == '__main__':
     # get_data_from_both_apis('https://dailyloannews.com')
     # ads_format_selected('https://dailyloannews.com', format_44=1, format_11=1)
-    print(all_data_for_one_site('http://www.journalducameroun.com', 1, 'US', format_19=1, format_46=1))
+    print(all_data_for_one_site('https://www.coursfrancaisfacile.com', 1, 'US', format_19=1, format_46=1))
