@@ -33,7 +33,9 @@ def get_data_from_both_apis(url) -> pd.DataFrame :
     print(Fore.GREEN + f'Data from APIs available for site {url}' + Style.RESET_ALL)
     both_apis_data = pd.merge(psi_kpis, sw_kpis, on='site_url', how='left')
 
-    return both_apis_data.drop(columns='Top_Geo')
+    both_apis_data = both_apis_data.drop(columns='Top_Geo')
+
+    return both_apis_data
 
 
 
@@ -107,4 +109,4 @@ def all_data_for_one_site(url, blocklist_value, geo, format_1=0, format_2=0, for
 if __name__ == '__main__':
     # get_data_from_both_apis('https://dailyloannews.com')
     # ads_format_selected('https://dailyloannews.com', format_44=1, format_11=1)
-    print(all_data_for_one_site('https://dailyloannews.com', 1, 'US', format_19=1, format_46=1))
+    print(all_data_for_one_site('http://www.journalducameroun.com', 1, 'US', format_19=1, format_46=1))
