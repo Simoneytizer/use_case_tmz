@@ -78,14 +78,18 @@ def ads_format_selected(url, format_1=0, format_2=0, format_3=0, format_4=0, for
 
 
 
+
 def number_of_formats(df):
     num_values = df.select_dtypes(include='int')
     return num_values.values.sum()
 
 
 
+
+
 def top_geo(geo=np.NaN):
     return geo
+
 
 
 
