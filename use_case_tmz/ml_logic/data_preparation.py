@@ -19,14 +19,14 @@ import numpy as np
 from colorama import Fore, Style
 
 from use_case_tmz.data_enrichment.api_page_speed_insights import page_speed_insight_kpis, get_data_from_similar
-from use_case_tmz.ml_logic.params import PSI_API_KEY
+from use_case_tmz.ml_logic.params import PSI_API_KEY_1
 
 
 
 def get_data_from_both_apis(url) -> pd.DataFrame :
 
     print(Fore.YELLOW + f'Retrieving data for site {url}' + Style.RESET_ALL)
-    key = PSI_API_KEY
+    key = PSI_API_KEY_1
     psi_kpis= page_speed_insight_kpis(url, key)
     sw_kpis= get_data_from_similar(url)
 
@@ -109,4 +109,4 @@ def all_data_for_one_site(url, blocklist_value, geo, format_1=0, format_2=0, for
 if __name__ == '__main__':
     # get_data_from_both_apis('https://dailyloannews.com')
     # ads_format_selected('https://dailyloannews.com', format_44=1, format_11=1)
-    print(all_data_for_one_site('https://www.coursfrancaisfacile.com', 1, 'US', format_19=1, format_46=1))
+    print(all_data_for_one_site('https://www.coursfrancaisfacile.com', 1, 'US', format_19=1, format_46=1).columns)
