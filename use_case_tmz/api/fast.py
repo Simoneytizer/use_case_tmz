@@ -31,24 +31,24 @@ def predict(site_url, blocklist_value=0, geo='Other', _1_=0, _2_=1, _3_=0, _4_=0
     X = X.fillna('Not found')
 
     return {'site_url': site_url,
-            'lighthouse_score': X['lighthouse_score'].values[0],
-            'LCP': X['LCP'][0],
-            'FID': X['FID'][0],
-            'CLS': X['CLS'][0],
-            'FCP': X['FCP'][0],
-            'INP': X['INP'][0],
-            'TTFB': X['TTFB'][0],
-            'Social': X['Social'].values[0],
-            'Mail': X['Mail'].values[0],
-            'Referrals': X['Referrals'].values[0],
-            'Search': X['Search'].values[0],
-            'Direct': X['Direct'].values[0],
-            'BounceRate': X['BounceRate'].values[0],
-            'PagePerVisit': X['PagePerVisit'].values[0],
+            'lighthouse_score': float(X['lighthouse_score'].values[0]),
+            'LCP': float(X['LCP'].values[0]),
+            'FID': float(X['FID'].values[0]),
+            'CLS': float(X['CLS'].values[0]),
+            'FCP': float(X['FCP'].values[0]),
+            'INP': float(X['INP'].values[0]),
+            'TTFB': float(X['TTFB'].values[0]),
+            'Social': float(X['Social'].values[0]),
+            'Mail': float(X['Mail'].values[0]),
+            'Referrals': float(X['Referrals'].values[0]),
+            'Search': float(X['Search'].values[0]),
+            'Direct': float(X['Direct'].values[0]),
+            'BounceRate': float(X['BounceRate'].values[0]),
+            'PagePerVisit': float(X['PagePerVisit'].values[0]),
             'Category': X['Category'].values[0],
-            'EstimatedMonthlyVisits': X['EstimatedMonthlyVisits'].values[0],
-            'estimated_ca': y_pred}
+            'EstimatedMonthlyVisits': float(X['EstimatedMonthlyVisits'].values[0]),
+            'estimated_ca': float(y_pred)}
 
 
 if __name__=="__main__":
-    print(predict('https://delife.fun'))
+    print(predict('https://www.larousse.fr'))

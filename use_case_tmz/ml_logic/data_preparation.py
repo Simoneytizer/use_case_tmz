@@ -19,14 +19,14 @@ import numpy as np
 from colorama import Fore, Style
 
 from use_case_tmz.data_enrichment.api_page_speed_insights import page_speed_insight_kpis, get_data_from_similar
-from use_case_tmz.ml_logic.params import PSI_API_KEY
+from use_case_tmz.ml_logic.params import PSI_API_KEY_1
 
 
 
 def get_data_from_both_apis(url) -> pd.DataFrame :
 
     print(Fore.YELLOW + f'Retrieving data for site {url}' + Style.RESET_ALL)
-    key = PSI_API_KEY
+    key = PSI_API_KEY_1
     psi_kpis= page_speed_insight_kpis(url, key)
     sw_kpis= get_data_from_similar(url)
 
