@@ -19,14 +19,14 @@ import numpy as np
 from colorama import Fore, Style
 
 from use_case_tmz.data_enrichment.api_page_speed_insights import page_speed_insight_kpis, get_data_from_similar
-from use_case_tmz.ml_logic.params import PSI_API_KEY
+from use_case_tmz.ml_logic.params import PSI_API_KEY_1
 
 
 
 def get_data_from_both_apis(url) -> pd.DataFrame :
 
     print(Fore.YELLOW + f'Retrieving data for site {url}' + Style.RESET_ALL)
-    key = PSI_API_KEY
+    key = PSI_API_KEY_1
     psi_kpis= page_speed_insight_kpis(url, key)
     sw_kpis= get_data_from_similar(url)
 
@@ -44,37 +44,45 @@ def blocklist(blocklist_value = 0):
 
 
 
-def ads_format_selected(url, format_1=0, format_2=0, format_3=0, format_4=0, format_5=0,
-       format_6=0, format_11=0, format_15=0, format_16=0, format_19=0, format_20=0, format_24=0, format_27=0, format_28=0, format_30=0,
-       format_31=0, format_34=0, format_38=0, format_39=0, format_43=0, format_44=0, format_46=0):
+def ads_format_selected(url, _1_=0, _2_=1, _3_=0, _4_=0, _5_=0,
+       _6_=0, _11_=0, _15_=0, _16_=0, _19_=0, _20_=0, _24_=0, _27_=0, _28_=0, _30_=0,
+       _31_=0, _34_=0, _38_=0, _39_=0, _43_=0, _44_=0, _46_=0):
 
     format_dict = {
         'site_url':url,
-        '_1':format_1,
-        '_2':format_2,
-        '_3':format_3,
-        '_4':format_4,
-        '_5':format_5,
-        '_6':format_6,
-        '_11':format_11,
-        '_15':format_15,
-        '_16':format_16,
-        '_19':format_19,
-        '_20':format_20,
-        '_24':format_24,
-        '_27':format_27,
-        '_28':format_28,
-        '_30':format_30,
-        '_31':format_31,
-        '_34':format_34,
-        '_38':format_38,
-        '_39':format_39,
-        '_43':format_43,
-        '_44':format_44,
-        '_46':format_46
+        '_1_':_1_,
+        '_2_':_2_,
+        '_3_':_3_,
+        '_4_':_4_,
+        '_5_':_5_,
+        '_6_':_6_,
+        '_11_':_11_,
+        '_15_':_15_,
+        '_16_':_16_,
+        '_19_':_19_,
+        '_20_':_20_,
+        '_24_':_24_,
+        '_27_':_27_,
+        '_28_':_28_,
+        '_30_':_30_,
+        '_31_':_31_,
+        '_34_':_34_,
+        '_38_':_38_,
+        '_39_':_39_,
+        '_43_':_43_,
+        '_44_':_44_,
+        '_46_':_46_
     }
 
     return pd.DataFrame(format_dict, index=[0])
+
+
+
+
+def number_of_formats(df):
+    num_values = df.select_dtypes(include='int')
+    return num_values.values.sum()
+
 
 
 
@@ -85,9 +93,10 @@ def top_geo(geo=np.NaN):
 
 
 
-def all_data_for_one_site(url, blocklist_value, geo, format_1=0, format_2=0, format_3=0, format_4=0, format_5=0,
-       format_6=0, format_11=0, format_15=0, format_16=0, format_19=0, format_20=0, format_24=0, format_27=0, format_28=0, format_30=0,
-       format_31=0, format_34=0, format_38=0, format_39=0, format_43=0, format_44=0, format_46=0):
+
+def all_data_for_one_site(url, blocklist_value, geo, _1_=0, _2_=1, _3_=0, _4_=0, _5_=0,
+       _6_=0, _11_=0, _15_=0, _16_=0, _19_=0, _20_=0, _24_=0, _27_=0, _28_=0, _30_=0,
+       _31_=0, _34_=0, _38_=0, _39_=0, _43_=0, _44_=0, _46_=0):
 
     df = get_data_from_both_apis(url)
 
@@ -95,9 +104,11 @@ def all_data_for_one_site(url, blocklist_value, geo, format_1=0, format_2=0, for
 
     df['geo'] = top_geo(geo)
 
-    df_format = ads_format_selected(url, format_1, format_2, format_3, format_4, format_5,
-       format_6, format_11, format_15, format_16, format_19, format_20, format_24, format_27, format_28, format_30,
-       format_31, format_34, format_38, format_39, format_43, format_44, format_46)
+    df_format = ads_format_selected(url, _1_, _2_, _3_, _4_, _5_,
+       _6_, _11_, _15_, _16_, _19_, _20_, _24_, _27_, _28_, _30_,
+       _31_, _34_, _38_, _39_, _43_, _44_, _46_)
+
+    df['nb_formats'] = number_of_formats(df_format)
 
     df = pd.merge(df, df_format, on='site_url', how='left')
 
@@ -109,4 +120,6 @@ def all_data_for_one_site(url, blocklist_value, geo, format_1=0, format_2=0, for
 if __name__ == '__main__':
     # get_data_from_both_apis('https://dailyloannews.com')
     # ads_format_selected('https://dailyloannews.com', format_44=1, format_11=1)
-    print(all_data_for_one_site('https://www.coursfrancaisfacile.com', 1, 'US', format_19=1, format_46=1))
+    df_test = all_data_for_one_site('https://www.coursfrancaisfacile.com', 1, 'US', _19_=1, _46_=1)
+    print(df_test.columns)
+    # print(number_of_formats(ads_format_selected('https://dailyloannews.com', format_44=1, format_11=1)))
