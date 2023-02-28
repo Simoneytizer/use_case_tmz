@@ -50,5 +50,5 @@ def predict(site_url, blocklist_value=0, geo='Other', _1_=0, _2_=1, _3_=0, _4_=0
             'estimated_ca': float(y_pred)}
 
 
-if __name__=="__main__":
-    print(predict('https://www.larousse.fr'))
+# if __name__=="__main__":
+#     print(predict('https://www.larousse.fr'))
