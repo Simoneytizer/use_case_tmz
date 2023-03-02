@@ -17,19 +17,21 @@ vu_similar (car on a EstimatedMonthlyVisits) et site_category_similar (car moins
 import pandas as pd
 import numpy as np
 from colorama import Fore, Style
+import random
 
 from use_case_tmz.data_enrichment.api_page_speed_insights import page_speed_insight_kpis, get_data_from_similar
-from use_case_tmz.ml_logic.params import PSI_API_KEY_1
+from use_case_tmz.ml_logic.params import PSI_API_KEY_1, PSI_API_KEY_2, PSI_API_KEY_3
 
 
 
 def get_data_from_both_apis(url) -> pd.DataFrame :
 
     print(Fore.YELLOW + f'Retrieving data for site {url}' + Style.RESET_ALL)
-    key = PSI_API_KEY_1
+    key = random.choice([PSI_API_KEY_1, PSI_API_KEY_2, PSI_API_KEY_3])
     psi_kpis= page_speed_insight_kpis(url, key)
     sw_kpis= get_data_from_similar(url)
 
+    print(Fore.YELLOW + f'using API key: {key}' + Style.RESET_ALL)
     print(Fore.GREEN + f'Data from APIs available for site {url}' + Style.RESET_ALL)
     both_apis_data = pd.merge(psi_kpis, sw_kpis, on='site_url', how='left')
 

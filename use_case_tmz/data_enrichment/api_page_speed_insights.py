@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 
 from google.cloud import bigquery
-from use_case_tmz.ml_logic.params import PSI_API_KEY, PROJECT, DATASET, TABLE, TABLE_TO, PSI_API_KEY_1, PSI_API_KEY_2, PSI_API_KEY_3, TABLE_DATA_API
+from use_case_tmz.ml_logic.params import PROJECT, DATASET, TABLE, TABLE_TO, PSI_API_KEY_1, PSI_API_KEY_2, PSI_API_KEY_3, TABLE_DATA_API
 
 import json
 from numpy import NaN
@@ -240,7 +240,7 @@ def enrich_data_with_psi_api(start, end, file_name):
     # Apply the page speed insight function to get KPIs for all site url
     for i in range(1000):
         l = random.randint(0,3)
-        keys =[PSI_API_KEY, PSI_API_KEY_1, PSI_API_KEY_2, PSI_API_KEY_3]
+        keys =[ PSI_API_KEY_1, PSI_API_KEY_2, PSI_API_KEY_3]
         print(Fore.CYAN + f'Selected API key: {keys[l]}\n' + Style.RESET_ALL)
         # Apply function to get data from both APIs
         print(Fore.YELLOW + f'Data retrieving for site_url {site_url_df.iloc[i]}\n' + Style.RESET_ALL)
